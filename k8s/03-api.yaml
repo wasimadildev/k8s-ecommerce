@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shop-api
+  namespace: kindcart
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: shop-api}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxSurge: 1, maxUnavailable: 0}
+  template:
+    metadata:
+      labels: {app: shop-api}
+    spec:
+      containers:
+        - name: api
+          # Loaded into Kind locally; avoid the latest tag for reproducible releases.
+          image: kindcart-api:v1
+          imagePullPolicy: IfNotPresent
+          ports: [{containerPort: 4000}]
+          envFrom:
+            - configMapRef: {name: shop-config}
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef: {name: shop-db-secret, key: PGPASSWORD}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef: {name: shop-db-secret, key: JWT_SECRET}
+          startupProbe:
+            httpGet: {path: /health/live, port: 4000}
+            periodSeconds: 3
+            failureThreshold: 20
+          readinessProbe:
+            httpGet: {path: /health/ready, port: 4000}
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: {path: /health/live, port: 4000}
+            periodSeconds: 10
+          resources:
+            requests: {cpu: 100m, memory: 96Mi}
+            limits: {cpu: 500m, memory: 256Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shop-api
+  namespace: kindcart
+spec:
+  type: ClusterIP
+  selector: {app: shop-api}
+  ports:
+    - port: 4000
+      targetPort: 4000

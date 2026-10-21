@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shop-config
+  namespace: kindcart
+data:
+  PGHOST: postgres
+  PGPORT: "5432"
+  PGDATABASE: shop
+  PGUSER: shop
+  API_INTERNAL_URL: http://shop-api:4000
+---
+# LAB ONLY: replace with a generated strong password; never commit real credentials.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: shop-db-secret
+  namespace: kindcart
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: REPLACE_WITH_LOCAL_LAB_PASSWORD
+  PGPASSWORD: REPLACE_WITH_LOCAL_LAB_PASSWORD
+  JWT_SECRET: REPLACE_WITH_LOCAL_JWT_SECRET
