@@ -139,6 +139,25 @@ For a production registry, tag images with the release version or commit SHA,
 push them to the registry, and pin Kubernetes deployments to the resulting
 image digest.
 
+## Continuous integration
+
+GitHub Actions validates both applications on pull requests and pushes to
+`main`. The workflow installs locked dependencies, checks the API JavaScript
+source, and builds the production Next.js application.
+
+Pushes to `main` also build and publish the Docker images:
+
+```text
+<DOCKERHUB_USERNAME>/kindcart-api:<commit-sha>
+<DOCKERHUB_USERNAME>/kindcart-web:<commit-sha>
+```
+
+The workflow also updates the `latest` tag. Configure the following repository
+secrets before enabling image publishing:
+
+- `DOCKERHUB_USERNAME`: Docker Hub account or organization name
+- `DOCKERHUB_TOKEN`: Docker Hub access token with permission to push images
+
 ## Kubernetes deployment
 
 The manifests are applied in dependency order:
