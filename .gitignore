@@ -26,7 +26,3 @@ coverage/
 .LSOverride
 .vscode/
 .idea/
-
-# Local Docker and Kubernetes artifacts
-docker-compose.override.yml
-*.kubeconfig
